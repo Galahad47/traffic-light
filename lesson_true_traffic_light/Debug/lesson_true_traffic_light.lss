@@ -1,0 +1,303 @@
+
+lesson_true_traffic_light.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000112  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00000112  000001a6  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000001  00800060  00800060  000001a6  2**0
+                  ALLOC
+  3 .stab         000006b4  00000000  00000000  000001a8  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  4 .stabstr      00000085  00000000  00000000  0000085c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_aranges 00000080  00000000  00000000  000008e8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   000003e9  00000000  00000000  00000968  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000118  00000000  00000000  00000d51  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000002cb  00000000  00000000  00000e69  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000000a4  00000000  00000000  00001134  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    0000011f  00000000  00000000  000011d8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00000094  00000000  00000000  000012f7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	21 c0       	rjmp	.+66     	; 0x46 <__bad_interrupt>
+   4:	20 c0       	rjmp	.+64     	; 0x46 <__bad_interrupt>
+   6:	39 c0       	rjmp	.+114    	; 0x7a <__vector_3>
+   8:	1e c0       	rjmp	.+60     	; 0x46 <__bad_interrupt>
+   a:	1d c0       	rjmp	.+58     	; 0x46 <__bad_interrupt>
+   c:	1c c0       	rjmp	.+56     	; 0x46 <__bad_interrupt>
+   e:	1b c0       	rjmp	.+54     	; 0x46 <__bad_interrupt>
+  10:	1a c0       	rjmp	.+52     	; 0x46 <__bad_interrupt>
+  12:	19 c0       	rjmp	.+50     	; 0x46 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_copy_data>:
+  1c:	10 e0       	ldi	r17, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	e2 e1       	ldi	r30, 0x12	; 18
+  24:	f1 e0       	ldi	r31, 0x01	; 1
+  26:	02 c0       	rjmp	.+4      	; 0x2c <__do_copy_data+0x10>
+  28:	05 90       	lpm	r0, Z+
+  2a:	0d 92       	st	X+, r0
+  2c:	a0 36       	cpi	r26, 0x60	; 96
+  2e:	b1 07       	cpc	r27, r17
+  30:	d9 f7       	brne	.-10     	; 0x28 <__do_copy_data+0xc>
+
+00000032 <__do_clear_bss>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	01 c0       	rjmp	.+2      	; 0x3c <.do_clear_bss_start>
+
+0000003a <.do_clear_bss_loop>:
+  3a:	1d 92       	st	X+, r1
+
+0000003c <.do_clear_bss_start>:
+  3c:	a1 36       	cpi	r26, 0x61	; 97
+  3e:	b1 07       	cpc	r27, r17
+  40:	e1 f7       	brne	.-8      	; 0x3a <.do_clear_bss_loop>
+  42:	32 d0       	rcall	.+100    	; 0xa8 <main>
+  44:	64 c0       	rjmp	.+200    	; 0x10e <_exit>
+
+00000046 <__bad_interrupt>:
+  46:	dc cf       	rjmp	.-72     	; 0x0 <__vectors>
+
+00000048 <led_ini>:
+#define D3	PB2
+
+#include <avr/io.h>
+//Инициализация светодиодов
+void led_ini(void){
+	DDRB|=(1<<D1) | (1<<D2);
+  48:	87 b3       	in	r24, 0x17	; 23
+  4a:	83 60       	ori	r24, 0x03	; 3
+  4c:	87 bb       	out	0x17, r24	; 23
+}
+  4e:	08 95       	ret
+
+00000050 <D1_D2_tik>:
+
+void D1_D2_tik(){
+	PORTB &=~ (1<<D1);
+  50:	c0 98       	cbi	0x18, 0	; 24
+	PORTB|=(1<<D2);
+  52:	c1 9a       	sbi	0x18, 1	; 24
+}
+  54:	08 95       	ret
+
+00000056 <D2_D1_tik>:
+
+void D2_D1_tik(){
+	PORTB&=~(1<<D2);
+  56:	c1 98       	cbi	0x18, 1	; 24
+	PORTB|=(1<<D1);
+  58:	c0 9a       	sbi	0x18, 0	; 24
+}
+  5a:	08 95       	ret
+
+0000005c <button>:
+
+
+uint8_t button(void){
+	if(!(PINB&(1<<PB2))) return 1;
+  5c:	81 e0       	ldi	r24, 0x01	; 1
+  5e:	b2 99       	sbic	0x16, 2	; 22
+  60:	80 e0       	ldi	r24, 0x00	; 0
+	return 0;
+}
+  62:	08 95       	ret
+
+00000064 <button_ini>:
+
+
+
+//Инициализация кнопок
+void button_ini(void){
+	PORTB|=(1<<D3);
+  64:	c2 9a       	sbi	0x18, 2	; 24
+}
+  66:	08 95       	ret
+
+00000068 <timer_ini>:
+//Таймер
+void timer_ini(void){
+	TCCR0B |=(1<<CS01) | (1<<CS00);//делитель 64
+  68:	83 b7       	in	r24, 0x33	; 51
+  6a:	83 60       	ori	r24, 0x03	; 3
+  6c:	83 bf       	out	0x33, r24	; 51
+	TIMSK0 |=(1<<TOIE0); //разрешение на примененеие таймера
+  6e:	89 b7       	in	r24, 0x39	; 57
+  70:	82 60       	ori	r24, 0x02	; 2
+  72:	89 bf       	out	0x39, r24	; 57
+	TCNT0 = 106;// 256 - 150 = 106
+  74:	8a e6       	ldi	r24, 0x6A	; 106
+  76:	82 bf       	out	0x32, r24	; 50
+}
+  78:	08 95       	ret
+
+0000007a <__vector_3>:
+
+ISR(TIM0_OVF_vect){
+  7a:	1f 92       	push	r1
+  7c:	0f 92       	push	r0
+  7e:	0f b6       	in	r0, 0x3f	; 63
+  80:	0f 92       	push	r0
+  82:	11 24       	eor	r1, r1
+  84:	8f 93       	push	r24
+	if (tiks) tiks--;
+  86:	80 91 60 00 	lds	r24, 0x0060
+  8a:	88 23       	and	r24, r24
+  8c:	29 f0       	breq	.+10     	; 0x98 <__vector_3+0x1e>
+  8e:	80 91 60 00 	lds	r24, 0x0060
+  92:	81 50       	subi	r24, 0x01	; 1
+  94:	80 93 60 00 	sts	0x0060, r24
+	TCNT0 = 106;
+  98:	8a e6       	ldi	r24, 0x6A	; 106
+  9a:	82 bf       	out	0x32, r24	; 50
+}
+  9c:	8f 91       	pop	r24
+  9e:	0f 90       	pop	r0
+  a0:	0f be       	out	0x3f, r0	; 63
+  a2:	0f 90       	pop	r0
+  a4:	1f 90       	pop	r1
+  a6:	18 95       	reti
+
+000000a8 <main>:
+
+
+int main(void)
+{
+	led_ini();button_ini();timer_ini();
+  a8:	cf df       	rcall	.-98     	; 0x48 <led_ini>
+  aa:	dc df       	rcall	.-72     	; 0x64 <button_ini>
+  ac:	dd df       	rcall	.-70     	; 0x68 <timer_ini>
+	
+	uint8_t status=0;
+	sei();
+  ae:	78 94       	sei
+
+int main(void)
+{
+	led_ini();button_ini();timer_ini();
+	
+	uint8_t status=0;
+  b0:	c0 e0       	ldi	r28, 0x00	; 0
+    while(1)
+    {
+		switch (status){
+			case 0:
+			D1_D2_tik;
+			tiks=250; // чрез 2 секунды
+  b2:	0f 2e       	mov	r0, r31
+  b4:	fa ef       	ldi	r31, 0xFA	; 250
+  b6:	ef 2e       	mov	r14, r31
+  b8:	f0 2d       	mov	r31, r0
+			status=1;
+  ba:	ff 24       	eor	r15, r15
+  bc:	f3 94       	inc	r15
+			if(button()) status=2;
+			break;
+			
+			case 2:
+			D2_D1_tik();
+			tiks=125;
+  be:	0d e7       	ldi	r16, 0x7D	; 125
+			status = 3;
+  c0:	13 e0       	ldi	r17, 0x03	; 3
+			break;
+			case 3:
+			if (!tiks) status=0;
+  c2:	dd 24       	eor	r13, r13
+			status=1;
+			break;
+			
+			case 1:
+			if (!tiks) status=2;
+			if(button()) status=2;
+  c4:	d2 e0       	ldi	r29, 0x02	; 2
+  c6:	03 c0       	rjmp	.+6      	; 0xce <main+0x26>
+  c8:	cd 2f       	mov	r28, r29
+  ca:	01 c0       	rjmp	.+2      	; 0xce <main+0x26>
+			D2_D1_tik();
+			tiks=125;
+			status = 3;
+			break;
+			case 3:
+			if (!tiks) status=0;
+  cc:	cd 2d       	mov	r28, r13
+	
+	uint8_t status=0;
+	sei();
+    while(1)
+    {
+		switch (status){
+  ce:	c1 30       	cpi	r28, 0x01	; 1
+  d0:	59 f0       	breq	.+22     	; 0xe8 <main+0x40>
+  d2:	c1 30       	cpi	r28, 0x01	; 1
+  d4:	28 f0       	brcs	.+10     	; 0xe0 <main+0x38>
+  d6:	c2 30       	cpi	r28, 0x02	; 2
+  d8:	81 f0       	breq	.+32     	; 0xfa <main+0x52>
+  da:	c3 30       	cpi	r28, 0x03	; 3
+  dc:	c1 f7       	brne	.-16     	; 0xce <main+0x26>
+  de:	12 c0       	rjmp	.+36     	; 0x104 <main+0x5c>
+			case 0:
+			D1_D2_tik;
+			tiks=250; // чрез 2 секунды
+  e0:	e0 92 60 00 	sts	0x0060, r14
+			status=1;
+  e4:	cf 2d       	mov	r28, r15
+			break;
+  e6:	f3 cf       	rjmp	.-26     	; 0xce <main+0x26>
+			
+			case 1:
+			if (!tiks) status=2;
+  e8:	80 91 60 00 	lds	r24, 0x0060
+  ec:	88 23       	and	r24, r24
+  ee:	09 f4       	brne	.+2      	; 0xf2 <main+0x4a>
+  f0:	cd 2f       	mov	r28, r29
+			if(button()) status=2;
+  f2:	b4 df       	rcall	.-152    	; 0x5c <button>
+  f4:	88 23       	and	r24, r24
+  f6:	41 f7       	brne	.-48     	; 0xc8 <main+0x20>
+  f8:	ea cf       	rjmp	.-44     	; 0xce <main+0x26>
+			break;
+			
+			case 2:
+			D2_D1_tik();
+  fa:	ad df       	rcall	.-166    	; 0x56 <D2_D1_tik>
+			tiks=125;
+  fc:	00 93 60 00 	sts	0x0060, r16
+			status = 3;
+ 100:	c1 2f       	mov	r28, r17
+			break;
+ 102:	e5 cf       	rjmp	.-54     	; 0xce <main+0x26>
+			case 3:
+			if (!tiks) status=0;
+ 104:	80 91 60 00 	lds	r24, 0x0060
+ 108:	88 23       	and	r24, r24
+ 10a:	01 f3       	breq	.-64     	; 0xcc <main+0x24>
+ 10c:	e0 cf       	rjmp	.-64     	; 0xce <main+0x26>
+
+0000010e <_exit>:
+ 10e:	f8 94       	cli
+
+00000110 <__stop_program>:
+ 110:	ff cf       	rjmp	.-2      	; 0x110 <__stop_program>
